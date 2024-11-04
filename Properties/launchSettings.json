@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "yagg-vhf": {
+      "commandName": "Project",
+      "commandLineArgs": "gogo",
+      "workingDirectory": "R:\\NAC\\vhftest32"
+    }
+  }
+}

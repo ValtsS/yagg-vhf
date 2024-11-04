@@ -152,6 +152,10 @@ namespace yagg_vhf.Parser
                         {
                             csv.Context.RegisterClassMap<QsoRecordMap>();
                             score.Data = csv.GetRecords<QsoRecord>().ToArray();
+
+                            foreach (var entry in score.Data)
+                                entry.Callsign = config.CallsignsRemap.GetValueOrDefault(entry.Callsign.ToUpper(), entry.Callsign);
+
                         }
                         catch
                         {

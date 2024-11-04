@@ -9,5 +9,14 @@
         public string LatvianMarker = @"LATVIJAS STACIJAS".ToUpper();
         public string CSV_Start = @";Callsign;WWLoc;QSOs;WWLocs;ODX;Pnts";
         public string CSV_Delimiter = ";";
+        public int BestMonths = 9;
+
+        public Dictionary<string, string> CallsignsRemap = new Dictionary<string, string>()
+        {
+            { "YL3AOI", "YL3OI" },
+            { "YL3GU/P", "YL3GU" }
+        };
+
+
     }
 }

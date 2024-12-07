@@ -1,4 +1,4 @@
-﻿namespace yagg_vhf.Parser
+﻿namespace yagg_vhf.Parser.rezultati
 {
     public class ParsingException : Exception
     {

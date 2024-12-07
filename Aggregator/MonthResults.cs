@@ -21,5 +21,7 @@ namespace yagg_vhf.Aggregator
             Month = dateOnly.Month;
             sortedResults = bandResults.Where(x => x.date == dateOnly).OrderBy(x => x.Band).ThenBy(y => !y.Latvian).ToArray();
         }
+
+
     }
 }

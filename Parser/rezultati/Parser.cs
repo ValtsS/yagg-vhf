@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using yagg_vhf.Contract;
 
-namespace yagg_vhf.Parser
+namespace yagg_vhf.Parser.rezultati
 {
     internal class ResultsParser
     {
@@ -100,7 +100,7 @@ namespace yagg_vhf.Parser
                 while ((line = reader.ReadLine()) != null)
                 {
 
-                    if (line.StartsWith(config.CSV_Start))
+                    if (config.CSV_Start.Any(v => line.StartsWith(v)))
                     {
                         sb = new StringBuilder();
                     }
@@ -151,7 +151,8 @@ namespace yagg_vhf.Parser
                         try
                         {
                             csv.Context.RegisterClassMap<QsoRecordMap>();
-                            score.Data = csv.GetRecords<QsoRecord>().ToArray();
+
+                            score.Data = csv.GetRecords<QsoResultsRecord>().ToArray();
 
                             foreach (var entry in score.Data)
                                 entry.Callsign = config.CallsignsRemap.GetValueOrDefault(entry.Callsign.ToUpper(), entry.Callsign);
@@ -180,7 +181,7 @@ namespace yagg_vhf.Parser
             return null;
         }
 
-        public ResultsParser(string text, Config config, string fileName)
+        public ResultsParser(string text, Config config, string fileName, Dictionary<string, QsoRecord[]> relatedQSOs)
         {
             Console.WriteLine($"Parsing {fileName}");
 
@@ -201,13 +202,21 @@ namespace yagg_vhf.Parser
             var EN_scoreTexts = ExtractAllScoresTexts(ENG);
 
             scores = LV_scoreTexts.Select(x => parseScoreText(x, date.Value)).Where(x => x != null).
-                Union(
+                Concat(
             EN_scoreTexts.Select(x => parseScoreText(x, date.Value)).Where(x => x != null)).ToArray();
 
             if (scores.Length != 8 && scores.Length != 10)
             {
                 throw new ParsingException($"Not all scores found");
             }
+
+            foreach (var sc in scores)
+            {
+                sc.LoadQSODetails(relatedQSOs, config);
+            }
+
+
+
 
         }
 

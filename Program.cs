@@ -1,26 +1,13 @@
 ﻿using System.ComponentModel.Design;
-using yagg_vhf.Aggregator;
 using yagg_vhf.Contract;
+using yagg_vhf.Output.JSON;
 using yagg_vhf.Parser;
+using yagg_vhf.Parser.qso;
+using yagg_vhf.Parser.rezultati;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace yagg_vhf
 {
-
-    internal class CompleteResultSet
-    {
-        private readonly MonthResults[] monthResults;
-        private readonly YearlyResults[] yearlyResults;
-
-        public CompleteResultSet(BandResults[] data, Config configuration) {
-            monthResults = [.. data.GroupBy(x => x.date).Select(x => new MonthResults(x.Key, x.ToArray())).OrderBy( x => x.Year).ThenBy( x => x.Month)];
-            yearlyResults = [.. data.GroupBy(x => x.date.Year).Select(x => new YearlyResults(x.Key, x, configuration))];
-        }
-
-        public MonthResults[] MonthResults { get => monthResults;  }
-        public YearlyResults[] YearlyResults { get => yearlyResults; }
-    }
-
 
 
     internal class Program
@@ -31,10 +18,15 @@ namespace yagg_vhf
             return Directory.GetCurrentDirectory();
         }
 
+        static string LocateAndLoadQSO(string resultsath)
+        {
+            var qsoPath = Path.GetDirectoryName(resultsath) + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "QSOBase.dat";
+            return File.ReadAllText(qsoPath);
+
+        }
+
         static void Main(string[] args)
         {
-
-
 
             var conf = new Config();
 
@@ -42,11 +34,14 @@ namespace yagg_vhf
             {
 
                 IEnumerable<String> matchingFilePaths2 = System.IO.Directory.EnumerateFiles(pwd(), conf.TargetFiles, System.IO.SearchOption.AllDirectories);
-                var data = matchingFilePaths2.Select( file => new ResultsParser(File.ReadAllText(file), conf, file)).SelectMany( parser => parser.scores).ToArray();
 
+                var QSOBases = matchingFilePaths2.Select( file => new { file, contents = LocateAndLoadQSO(file) } ).ToDictionary(x => x.file, x => new QsoParser(x.contents, conf, x.file));
+                var resultsCSVs = matchingFilePaths2.Select( file => new ResultsParser(File.ReadAllText(file), conf, file, QSOBases[file].QsoLog )).SelectMany( parser => parser.scores).ToArray();
 
+                var results = new CompleteResultSet(resultsCSVs, conf);
 
-                var results = new CompleteResultSet(data, conf);
+                var jo = new JsonOutput(results);
+                jo.Produce();
 
 
             }

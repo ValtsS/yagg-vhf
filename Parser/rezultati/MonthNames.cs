@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace yagg_vhf
+namespace yagg_vhf.Parser.rezultati
 {
     internal class MonthNames : Dictionary<string, int>
     {

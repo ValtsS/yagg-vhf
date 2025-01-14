@@ -43,7 +43,7 @@ namespace yagg_vhf.Aggregator
                     H[key].MonthlyScores[br.date.Month - 1] = new MonthlyScore()
                     {
                         Score = op.Pnts,
-                        Link = $"{br.Band.GetFirstWord()}.{this.Year}.{br.date.Month}.{op.Callsign}" //50.2023.12.31.YL2AO
+                        Link = $"{br.Band.GetFirstWord()}.{this.Year}.{br.date.Month}.{op.Callsign}" //50.2023.12.YL2AO
                     };
                 }
             }

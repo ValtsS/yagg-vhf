@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using yagg_vhf.Aggregator;
 using yagg_vhf.Contract;
+using K4os.Compression.LZ4;
+using K4os.Compression.LZ4.Streams;
 
 namespace yagg_vhf.Output.JSON
 {
@@ -139,15 +141,31 @@ namespace yagg_vhf.Output.JSON
             return JsonSerializer.Serialize(data, options);
         }
 
+        public static byte[] CompressLZ4(string json)
+        {
+            // Convert JSON string to UTF-8 bytes
+            byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(json);
+
+            using var memoryStream = new MemoryStream();
+
+            using (var lz4Stream = LZ4Stream.Encode(memoryStream, LZ4Level.L12_MAX))
+            {
+                // Write the input bytes into the LZ4 stream
+                lz4Stream.Write(inputBytes, 0, inputBytes.Length);
+            }
+
+            // Return the compressed bytes from the memory stream
+            return memoryStream.ToArray();
+        }
         public override void Produce()
         {
-            var a = SerializeData(this.data);
-            File.WriteAllText("results.json", a);
+            var a = CompressLZ4(SerializeData(this.data));
+            File.WriteAllBytes("results.lz4", a);
 
             foreach (var yearDet in this.details)
             {
-                var b = SerializeData(yearDet.Value);
-                File.WriteAllText($"{yearDet.Key}.json", b);
+                var b = CompressLZ4(SerializeData(yearDet.Value));
+                File.WriteAllBytes($"{yearDet.Key}.lz4", b);
             }
 
 

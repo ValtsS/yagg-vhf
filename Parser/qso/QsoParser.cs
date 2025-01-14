@@ -47,6 +47,7 @@ namespace yagg_vhf.Parser.qso
                     try
                     {
                         var data = csv.GetRecords<QsoRecord>().ToArray();
+                        HandleMGM(data);
                         qsoLog = data.GroupBy(x => x.Callsign).ToDictionary(x => x.Key, x => x.ToArray());
                         Console.WriteLine($"got {data.Length} total QSOs for {qsoLog.Count} callsigns");
                     }
@@ -55,7 +56,17 @@ namespace yagg_vhf.Parser.qso
                         Console.WriteLine($"\nOffending QSO:\n{contents}");
                         throw;
                     }
+                }
+            }
+        }
 
+        private static void HandleMGM(QsoRecord[] data)
+        {
+            foreach (var record in data)
+            {
+                if (record.Mode.ToUpper()=="RTTY" ||  record.Mode.ToUpper()==string.Empty)
+                {
+                    record.Mode = "MGM";
                 }
             }
         }

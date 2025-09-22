@@ -11,7 +11,7 @@ namespace yagg_vhf.Contract
 
         public string UID => $"{Band.GetFirstWord()}.{date.Year}.{date.Month}";
 
-        public void LoadQSODetails(Dictionary<string, QsoRecord[]> relatedQSOs, Config config)
+        public void LoadQSODetails(Dictionary<string, QsoRecord[]> relatedQSOs, Dictionary<string, Config.MapTo> CallsignsRemap)
         {
             foreach(var dq in Data)
             {
@@ -25,11 +25,11 @@ namespace yagg_vhf.Contract
                 while (updated)
                 {
                     updated = false;
-                    foreach (var kv in config.CallsignsRemap)
+                    foreach (var kv in CallsignsRemap)
                     {
-                        if (relatedCallsigns.Contains(kv.Key) && (relatedCallsigns.Add(kv.Value))) updated = true;
+                        if (relatedCallsigns.Contains(kv.Key) && (relatedCallsigns.Add(kv.Value.callsign))) updated = true;
 
-                        if (relatedCallsigns.Contains(kv.Value)
+                        if (relatedCallsigns.Contains(kv.Value.callsign)
                             && (relatedCallsigns.Add(kv.Key))) updated = true;
 
                     }

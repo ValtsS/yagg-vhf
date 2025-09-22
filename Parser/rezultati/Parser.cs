@@ -155,7 +155,12 @@ namespace yagg_vhf.Parser.rezultati
                             score.Data = csv.GetRecords<QsoResultsRecord>().ToArray();
 
                             foreach (var entry in score.Data)
-                                entry.Callsign = config.CallsignsRemap.GetValueOrDefault(entry.Callsign.ToUpper(), entry.Callsign);
+                            {
+                                if (config.CallsignsRemap.TryGetValue(entry.Callsign.ToUpper(), out Config.MapTo mapinfo) && (!mapinfo.yearFromToApply.HasValue || date.Year >= mapinfo.yearFromToApply.Value ))
+                                {
+                                    entry.Callsign = mapinfo.callsign;
+                                }
+                            }
 
                         }
                         catch
@@ -212,7 +217,7 @@ namespace yagg_vhf.Parser.rezultati
 
             foreach (var sc in scores)
             {
-                sc.LoadQSODetails(relatedQSOs, config);
+                sc.LoadQSODetails(relatedQSOs, config.CallsignsRemap.Where(kv => !kv.Value.yearFromToApply.HasValue || date.Value.Year >= kv.Value.yearFromToApply ).ToDictionary());
             }
 
 

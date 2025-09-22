@@ -12,10 +12,17 @@
         public string QSO_Delimiter = "\t";
         public int BestMonths = 9;
 
-        public Dictionary<string, string> CallsignsRemap = new Dictionary<string, string>()
+        public class MapTo
         {
-            { "YL3AOI", "YL3OI" },
-            { "YL3GU/P", "YL3GU" }
+            public string callsign;
+            public int? yearFromToApply;
+        }
+
+        public Dictionary<string, MapTo> CallsignsRemap = new Dictionary<string, MapTo>()
+        {
+            { "YL3AOI", new (){ callsign = "YL3OI" } },
+            { "YL3GU/P", new () { callsign = "YL3GU" } },
+            { "YL3ANT", new () { callsign = "YL3NT", yearFromToApply = 2025 } }
         };
 
 
